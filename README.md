@@ -14,9 +14,15 @@ pip install -r requirements.txt
 ## Dataset
 Cityscapes — place under data/cityscapes/
 
+## Results
+
+| Model | Val mIoU |
+|---|---|
+| Baseline DeepLabV3+ (MobileNetV2) | 50.49% |
+
 ## Status
-- [ ] Phase 0 — Environment setup
-- [ ] Phase 1 — Baseline model
+- [x] Phase 0 — Environment setup
+- [x] Phase 1 — Baseline model
 - [ ] Phase 2 — Custom modifications
 - [ ] Phase 3 — Training
 - [ ] Phase 4 — Evaluation
