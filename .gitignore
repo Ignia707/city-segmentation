@@ -1,0 +1,23 @@
+# Dataset
+data/
+
+# Model weights
+checkpoints/
+*.pth
+*.pt
+
+# Experiment outputs
+outputs/
+runs/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# wandb
+wandb/
