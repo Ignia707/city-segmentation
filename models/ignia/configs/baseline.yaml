@@ -1,5 +1,5 @@
 run_name: "baseline-deeplabv3plus"
-data_root: "data/cityscapes"
+data_root: "../../data/cityscapes"
 
 # training
 epochs: 20

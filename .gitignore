@@ -3,11 +3,13 @@ data/
 
 # Model weights
 checkpoints/
+models/*/checkpoints/
 *.pth
 *.pt
 
 # Experiment outputs
 outputs/
+models/*/outputs/
 runs/
 
 # Python
