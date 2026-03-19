@@ -1,28 +1,35 @@
 # City Street Semantic Segmentation
 
-Real-time semantic segmentation of urban street scenes using
-a modified DeepLabV3+ with MobileNetV2 backbone and custom
-feature fusion with attention.
+Real-time semantic segmentation of urban street scenes.
+Ideation and implementation of a different approachs.
+
+## Team Approaches
+
+| Member | Approach | Best Val mIoU |
+|---|---|---|
+| Ignia | Modified DeepLabV3+ with MobileNetV2 + FEM attention | 50.49% (baseline) |
+| Varun | TBD | - |
+| Subrajith | TBD | - |
+| Raghunandan | TBD | - |
+
+## Repo Structure
+```
+models/
+├── ignia/          — DeepLabV3+ with custom attention
+├── Varun/          — TBD
+├── Subrajith/      — TBD
+└── Raghunandan/    — TBD
+```
+## Dataset
+We use the [Cityscapes Dataset](https://www.cityscapes-dataset.com/) for all experiments.
+
+### Download
+1. Register at https://www.cityscapes-dataset.com/register/
+2. Download these two files:
+   - `gtFine_trainvaltest.zip` (241MB) — annotations
+   - `leftImg8bit_trainvaltest.zip` (11GB) — images
+3. Place and extract both under `data/cityscapes/` at the repo root
+
 
 ## Setup
-```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-## Dataset
-Cityscapes — place under data/cityscapes/
-
-## Results
-
-| Model | Val mIoU |
-|---|---|
-| Baseline DeepLabV3+ (MobileNetV2) | 50.49% |
-
-## Status
-- [x] Phase 0 — Environment setup
-- [x] Phase 1 — Baseline model
-- [ ] Phase 2 — Custom modifications
-- [ ] Phase 3 — Training
-- [ ] Phase 4 — Evaluation
+Refer individual README-files in respective directories
