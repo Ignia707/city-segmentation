@@ -8,11 +8,17 @@ feature fusion with FEM attention mechanism.
 ```bash
 python3.12 -m venv .venv
 source .venv/bin/activate
+
+# Install PyTorch with CUDA support first
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+# Then install remaining dependencies
 pip install -r requirements.txt
 ```
 
 ## Training
 ```bash
+cd models/ignia
 python -m src.train
 ```
 
