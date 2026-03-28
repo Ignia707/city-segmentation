@@ -23,3 +23,6 @@ __pycache__/
 
 # wandb
 wandb/
+
+# Materials
+/docs
