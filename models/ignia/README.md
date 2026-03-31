@@ -18,9 +18,13 @@ python -m src.train
 
 ## Results
 
+## Results
+
 | Model | Val mIoU |
 |---|---|
 | Baseline DeepLabV3+ (MobileNetV2) | 50.49% |
+| SegFormer-B0 (Cityscapes,pretrained, 20 samples)| 54.44% |
+| SegFormer-B3 (Cityscapes, pretrained) | 62.85% |
 
 ## Status
 - [x] Phase 0 — Environment setup
