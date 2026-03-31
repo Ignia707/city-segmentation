@@ -8,8 +8,8 @@ Ideation and implementation of a different approachs.
 | Member | Approach | Best Val mIoU |
 |---|---|---|
 | Ignia | Modified DeepLabV3+ with MobileNetV2 + FEM attention | 50.49% (baseline) |
-| Varun | TBD | - |
-| Subrajith | TBD | - |
+| Varun | HRnet V2 - W48 + OCR | 68.7% |
+| Subrajith | TBD |  |
 | Raghunandan | TBD | - |
 
 ## Repo Structure
