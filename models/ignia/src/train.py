@@ -75,6 +75,8 @@ def train(config):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
+    os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
     # initialize wandb
     wandb.init(
         project="city-segmentation",

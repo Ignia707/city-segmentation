@@ -61,7 +61,6 @@ class ASPP(nn.Module):
         x3 = self.atrous_12(x)
         x4 = self.atrous_18(x)
 
-        # global pool branch needs upsampling back to feature size
         x5 = self.global_pool(x)
         x5 = F.interpolate(x5, size=size,
                            mode="bilinear", align_corners=False)
@@ -224,7 +223,11 @@ class DeepLabV3PlusModified(nn.Module):
             nn.Conv2d(256, num_classes, 1)
         )
 
+        self.use_checkpoint = True
+
     def forward(self, x):
+        from torch.utils.checkpoint import checkpoint
+
         input_size = x.shape[2:]
 
         # extract shallow features sequentially
@@ -238,10 +241,15 @@ class DeepLabV3PlusModified(nn.Module):
         s2 = self.proj2(s2)
         s3 = self.proj3(s3)
 
-        # FEM attention on each shallow feature
-        s1 = self.fem1(s1)
-        s2 = self.fem2(s2)
-        s3 = self.fem3(s3)
+        # FEM attention with gradient checkpointing
+        if self.use_checkpoint:
+            s1 = checkpoint(self.fem1, s1, use_reentrant=False)
+            s2 = checkpoint(self.fem2, s2, use_reentrant=False)
+            s3 = checkpoint(self.fem3, s3, use_reentrant=False)
+        else:
+            s1 = self.fem1(s1)
+            s2 = self.fem2(s2)
+            s3 = self.fem3(s3)
 
         # upsample s2 and s3 to match s1 size (stride 4)
         s2 = F.interpolate(s2, size=s1.shape[2:],
@@ -254,7 +262,10 @@ class DeepLabV3PlusModified(nn.Module):
 
         # ASPP + FEM on high level (Change 2)
         high = self.aspp(high)
-        high = self.fem_aspp(high)
+        if self.use_checkpoint:
+            high = checkpoint(self.fem_aspp, high, use_reentrant=False)
+        else:
+            high = self.fem_aspp(high)
 
         # upsample high to match shallow size
         high = F.interpolate(high, size=shallow_fused.shape[2:],
