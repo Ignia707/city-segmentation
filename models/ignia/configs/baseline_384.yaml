@@ -1,8 +1,8 @@
-run_name: "modified-fem-weighted-fusion"
+run_name: "baseline-deeplabv3plus-384"
 data_root: "../../data/cityscapes"
-use_modified: true
+use_modified: false
 
-# training
+# training — matched to modified model config
 epochs: 20
 batch_size: 4
 accumulation_steps: 2

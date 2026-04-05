@@ -30,6 +30,9 @@ def train_one_epoch(model, loader, optimizer, criterion, device, epoch, accumula
         loss = loss / accumulation_steps
         loss.backward()
 
+        # free unused memory after backward
+        torch.cuda.empty_cache()
+
         # update weights only every accumulation_steps batches
         if (i + 1) % accumulation_steps == 0:
             optimizer.step()
