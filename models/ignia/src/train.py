@@ -9,7 +9,7 @@ import os
 from src.dataset import CityscapesDataset, get_transforms
 from src.model import get_model, get_modified_model
 from src.evaluate import MeanIoU
-from torch.cuda.amp import autocast, GradScaler
+from torch.amp import autocast, GradScaler
 
 def train_one_epoch(model, loader, optimizer, criterion, device, epoch, accumulation_steps=1, scaler=None):
     model.train()
@@ -24,7 +24,7 @@ def train_one_epoch(model, loader, optimizer, criterion, device, epoch, accumula
         masks = masks.to(device)
 
         # mixed precision forward pass
-        with autocast('cuda', enabled=scaler is not None):
+        with autocast(device_type='cuda', enabled=scaler is not None):
             outputs = model(imgs)
             loss = criterion(outputs, masks)
 
@@ -146,7 +146,7 @@ def train(config):
     # warmup + cosine annealing scheduler
     warmup_epochs = config.get("warmup_epochs", 5)
     use_fp16 = config.get("fp16", False)
-    scaler = GradScaler('cuda') if use_fp16 else None
+    scaler = GradScaler(device='cuda') if use_fp16 else None
 
     # warmup scheduler — linear ramp from 0 to lr
     warmup_scheduler = torch.optim.lr_scheduler.LinearLR(
