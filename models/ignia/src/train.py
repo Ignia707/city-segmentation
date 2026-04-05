@@ -7,7 +7,7 @@ import yaml
 import os
 
 from src.dataset import CityscapesDataset, get_transforms
-from src.model import get_model
+from src.model import get_model, get_modified_model
 from src.evaluate import MeanIoU
 
 
@@ -105,7 +105,13 @@ def train(config):
     )
 
     # model
-    model = get_model(num_classes=19).to(device)
+    use_modified =  config.get("use_modified", False)
+    if use_modified:
+        model = get_modified_model(num_classes=19).to(device)
+        print("Using modified model with FEM attention and weighted fusion")
+    else:
+        model = get_model(num_classes=19).to(device)
+        print("Using baseline model")
 
     # loss — ignore index 255
     criterion = nn.CrossEntropyLoss(ignore_index=255)
@@ -171,6 +177,10 @@ def train(config):
 
 
 if __name__ == "__main__":
-    with open("configs/baseline.yaml") as f:
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", default="configs/baseline.yaml")
+    args = parser.parse_args()
+    with open(args.config) as f:
         config = yaml.safe_load(f)
     train(config)

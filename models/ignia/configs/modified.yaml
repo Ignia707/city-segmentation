@@ -1,0 +1,11 @@
+run_name: "modified-fem-weighted-fusion"
+data_root: "../../data/cityscapes"
+use_modified: true
+
+# training
+epochs: 20
+batch_size: 8
+crop_size: 512
+lr: 0.0001
+weight_decay: 0.01
+num_workers: 4
