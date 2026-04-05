@@ -11,29 +11,34 @@ from src.model import get_model, get_modified_model
 from src.evaluate import MeanIoU
 
 
-def train_one_epoch(model, loader, optimizer, criterion, device, epoch):
+def train_one_epoch(model, loader, optimizer, criterion, device, epoch, accumulation_steps=1):
     model.train()
     total_loss = 0
     metric = MeanIoU(num_classes=19)
 
+    optimizer.zero_grad()
+
     pbar = tqdm(loader, desc=f"Epoch {epoch} [Train]")
-    for imgs, masks in pbar:
+    for i, (imgs, masks) in enumerate(pbar):
         imgs = imgs.to(device)
         masks = masks.to(device)
 
-        optimizer.zero_grad()
         outputs = model(imgs)
         loss = criterion(outputs, masks)
+
+        # scale loss by accumulation steps
+        loss = loss / accumulation_steps
         loss.backward()
-        optimizer.step()
 
-        total_loss += loss.item()
+        # update weights only every accumulation_steps batches
+        if (i + 1) % accumulation_steps == 0:
+            optimizer.step()
+            optimizer.zero_grad()
 
-        # get predicted classes
+        total_loss += loss.item() * accumulation_steps
         preds = outputs.argmax(dim=1)
         metric.update(preds, masks)
-
-        pbar.set_postfix(loss=f"{loss.item():.4f}")
+        pbar.set_postfix(loss=f"{loss.item() * accumulation_steps:.4f}")
 
     avg_loss = total_loss / len(loader)
     miou, _ = metric.compute()
@@ -137,7 +142,7 @@ def train(config):
     for epoch in range(1, config["epochs"] + 1):
         # train
         train_loss, train_miou = train_one_epoch(
-            model, train_loader, optimizer, criterion, device, epoch
+            model, train_loader, optimizer, criterion, device, epoch, accumulation_steps=config.get("accumulation_steps", 1)
         )
 
         # validate
