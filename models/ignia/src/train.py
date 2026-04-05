@@ -9,9 +9,9 @@ import os
 from src.dataset import CityscapesDataset, get_transforms
 from src.model import get_model, get_modified_model
 from src.evaluate import MeanIoU
+from torch.cuda.amp import autocast, GradScaler
 
-
-def train_one_epoch(model, loader, optimizer, criterion, device, epoch, accumulation_steps=1):
+def train_one_epoch(model, loader, optimizer, criterion, device, epoch, accumulation_steps=1, scaler=None):
     model.train()
     total_loss = 0
     metric = MeanIoU(num_classes=19)
@@ -23,19 +23,28 @@ def train_one_epoch(model, loader, optimizer, criterion, device, epoch, accumula
         imgs = imgs.to(device)
         masks = masks.to(device)
 
-        outputs = model(imgs)
-        loss = criterion(outputs, masks)
+        # mixed precision forward pass
+        with autocast('cuda', enabled=scaler is not None):
+            outputs = model(imgs)
+            loss = criterion(outputs, masks)
 
         # scale loss by accumulation steps
         loss = loss / accumulation_steps
-        loss.backward()
 
-        # free unused memory after backward
+        # backward with scaler if fp16
+        if scaler is not None:
+            scaler.scale(loss).backward()
+        else:
+            loss.backward()
+
         torch.cuda.empty_cache()
 
-        # update weights only every accumulation_steps batches
         if (i + 1) % accumulation_steps == 0:
-            optimizer.step()
+            if scaler is not None:
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                optimizer.step()
             optimizer.zero_grad()
 
         total_loss += loss.item() * accumulation_steps
@@ -45,6 +54,7 @@ def train_one_epoch(model, loader, optimizer, criterion, device, epoch, accumula
 
     avg_loss = total_loss / len(loader)
     miou, _ = metric.compute()
+
     return avg_loss, miou
 
 
@@ -133,11 +143,31 @@ def train(config):
         weight_decay=config["weight_decay"]
     )
 
-    # learning rate scheduler
-    scheduler = torch.optim.lr_scheduler.PolynomialLR(
+    # warmup + cosine annealing scheduler
+    warmup_epochs = config.get("warmup_epochs", 5)
+    use_fp16 = config.get("fp16", False)
+    scaler = GradScaler('cuda') if use_fp16 else None
+
+    # warmup scheduler — linear ramp from 0 to lr
+    warmup_scheduler = torch.optim.lr_scheduler.LinearLR(
         optimizer,
-        total_iters=config["epochs"],
-        power=1.0
+        start_factor=0.01,
+        end_factor=1.0,
+        total_iters=warmup_epochs
+    )
+
+    # cosine annealing after warmup
+    cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer,
+        T_max=config["epochs"] - warmup_epochs,
+        eta_min=1e-6
+    )
+
+    # combine both
+    scheduler = torch.optim.lr_scheduler.SequentialLR(
+        optimizer,
+        schedulers=[warmup_scheduler, cosine_scheduler],
+        milestones=[warmup_epochs]
     )
 
     # training loop
@@ -147,7 +177,7 @@ def train(config):
     for epoch in range(1, config["epochs"] + 1):
         # train
         train_loss, train_miou = train_one_epoch(
-            model, train_loader, optimizer, criterion, device, epoch, accumulation_steps=config.get("accumulation_steps", 1)
+            model, train_loader, optimizer, criterion, device, epoch, accumulation_steps=config.get("accumulation_steps", 1), scaler=scaler
         )
 
         # validate
