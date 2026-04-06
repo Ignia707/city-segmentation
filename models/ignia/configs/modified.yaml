@@ -4,7 +4,7 @@ use_modified: true
 
 # training
 epochs: 60
-warmup_epochs: 5
+warmup_epochs: 0
 batch_size: 4
 accumulation_steps: 2
 crop_size: 512

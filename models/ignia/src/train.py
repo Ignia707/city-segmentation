@@ -189,14 +189,23 @@ def train(config):
         scheduler.step()
 
         # log to wandb
-        wandb.log({
+        log_dict = {
             "epoch": epoch,
             "train/loss": train_loss,
             "train/mIoU": train_miou,
             "val/loss": val_loss,
             "val/mIoU": val_miou,
             "lr": optimizer.param_groups[0]["lr"]
-        })
+        }
+
+        # log fusion weights if modified model
+        if config.get("use_modified", False):
+            w = torch.softmax(model.weighted_fusion.weights, dim=0)
+            log_dict["fusion_weight_s1"] = w[0].item()
+            log_dict["fusion_weight_s2"] = w[1].item()
+            log_dict["fusion_weight_s3"] = w[2].item()
+
+        wandb.log(log_dict)
 
         print(f"\nEpoch {epoch}/{config['epochs']}")
         print(f"Train — Loss: {train_loss:.4f}, mIoU: {train_miou:.4f}")
