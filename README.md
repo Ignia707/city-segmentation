@@ -9,7 +9,8 @@ Ideation and implementation of a different approachs.
 |---|---|---|
 | Ignia | Modified DeepLabV3+ with MobileNetV2 + FEM attention | 50.49% (baseline) |
 | Varun | HRnet V2 - W48 + OCR | 68.7% |
-| Subrajith | TBD |  |
+| Subrajith | Custom Lightweight Encoder-Decoder with Strip Pooling | 40.14% |
+|           | ICNet (Fast_Seg, pretrained) | 74.00%|
 | Raghunandan | SegFormer-B0 (Cityscapes, pretrained, 20 samples) | 54.44%   |
 |            | SegFormer-B3 (Cityscapes, pretrained)             | 62.85%   |
 
