@@ -22,7 +22,7 @@ python -m src.train
 
 | Model | Val mIoU |
 |---|---|
-| Baseline DeepLabV3+ (MobileNetV2) | 50.49% |
+| Baseline DeepLabV3+ (MobileNetV2) | 49.89% |
 
 ## Status
 - [x] Phase 0 — Environment setup
