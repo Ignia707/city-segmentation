@@ -7,7 +7,7 @@ Ideation and implementation of a different approachs.
 
 | Member | Approach | Best Val mIoU |
 |---|---|---|
-| Ignia | Modified DeepLabV3+ with MobileNetV2 + FEM attention | 50.49% (baseline) |
+| Ignia | Modified DeepLabV3+ with MobileNetV2 + FEM attention | 49.89% |
 | Varun | HRnet V2 - W48 + OCR | 68.7% |
 | Subrajith | Custom Lightweight Encoder-Decoder with Strip Pooling | 40.14% |
 |           | ICNet (Fast_Seg, pretrained) | 74.00%|
